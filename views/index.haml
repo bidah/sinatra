@@ -1,10 +1,22 @@
-%h1
-	My app
+= render_file('views/header.haml')
 
 %p
-	%a{ :href => "#{@user_url}" }
-		%strong
-			Sign in with facebook
+	- if !session[:id] || session[:logged_in] == false
+		%a{ :href => "#{@user_url}" }
+			%strong
+				Sign in with facebook
+	- else
+		%h1
+			Your logged in bro
 
 %p
-	#{@profile}
+	Write on your own wall
+	%form{ :action => "/", :name => "example", :method => "POST" }
+		%input{ :type => "text", :name => "message", :value => "" }
+		%input{ :type=> "submit", :name => "name", :value => "Send" }
+
+%p
+	#{session[:access_token]}
+
+
+= render_file('views/footer.haml')
