@@ -16,7 +16,11 @@
 		%input{ :type=> "submit", :name => "name", :value => "Send" }
 
 %p
-	#{session[:access_token]}
+	%a{ :href => "/friends" }
+		Get friends list
 
+- if !!@user_save
+	%p
+		#{@user_save['id']}
 
 = render_file('views/footer.haml')

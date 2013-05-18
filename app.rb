@@ -61,7 +61,7 @@ get '/' do
 									:location => @profile_location
 								)
 
-					session[:id] = @user_save[:id]
+					session[:id] = @user_save['id']
 					session[:logged_in] = true
 				end
 
@@ -75,7 +75,7 @@ get '/' do
 
 end
 
-#POST message.html.haml
+#POST message.haml
 post '/' do
 
 	if params[:message]
@@ -91,6 +91,34 @@ post '/' do
 
 	haml :message, :format => :html5
 
+end
+
+#GET friends.haml
+get '/friends' do
+	if ( session[:graph] && session[:id] )
+
+		begin
+			@friends_list = session[:graph].get_connections( 'me', 'friends' );
+		rescue Exception=>ex
+			puts ex.message
+		end
+
+		@friends_list.each do | item |
+			Friends.first_or_create(
+				:user_id => "#{session[:id]}",
+				:name => item['name'],
+				:facebook_id => item['id']
+			)
+		end
+	end
+
+	haml :friends, :format => :html5
+end
+
+get '/friends-info' do
+
+	friends = Friends.all( :user_id => "#{session['id']}" )
+	"#{friends.inspect}"
 end
 
 #GET listing.html.haml
@@ -123,6 +151,16 @@ class User
 	property :location, String
 	property :create_date, DateTime
 
+end
+
+#Set up the friends table
+class Friends
+	include DataMapper::Resource
+
+	property :id, Serial
+	property :name, String
+	property :facebook_id, String
+	property :user_id, String
 end
 
 DataMapper.auto_upgrade!
